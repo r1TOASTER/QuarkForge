@@ -1,3 +1,8 @@
+/*
+    @brief - entry point of the entire system, initializtion and jumping to kernel main function
+ */
+
+
 .include "arch/aarch64/reg.S"
 
 .section .text
