@@ -34,10 +34,12 @@ SECTIONS {
     . = ALIGN(4K);
 
     /* Uninitialized data segment */
+    _sbss = .;
     .bss : {
         *(.bss)
     }
     . = ALIGN(4K);
+    _ebss = .;
 
     /* Discard unnecessary sections */
     /DISCARD/ : {
