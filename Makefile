@@ -56,23 +56,31 @@ OS_TARGET = $(OS_BUILD_DIR)/$(OS).bin
 HV_IMG = $(HV_BUILD_DIR)/$(HV).elf
 OS_IMG = $(OS_BUILD_DIR)/$(OS).elf
 
-# Assemble .c and .S files into .o (object files - object directory) - HV #
-$(foreach pair,$(HV_OBJ_SRC_C),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
-	mkdir -p $(HV_OBJ_DIR) ; \
-	$(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
+# create once the HV objects directory #
+$(HV_OBJ_DIR):
+	mkdir -p $(HV_OBJ_DIR)
 
-$(foreach pair,$(HV_OBJ_SRC_ASM),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
-	mkdir -p $(HV_OBJ_DIR) ; \
-	$(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
+# create once the OS objects directory #
+$(OS_OBJ_DIR):
+	mkdir -p $(OS_OBJ_DIR)
+
+# Assemble .c and .S files into .o (object files - object directory) - HV #
+$(foreach pair,$(HV_OBJ_SRC_C), \
+  $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(HV_OBJ_DIR) ; \
+      $(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
+
+$(foreach pair,$(HV_OBJ_SRC_ASM), \
+  $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(HV_OBJ_DIR) ; \
+      $(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
 
 # Assemble .c and .S files into .o (object files - object directory) - OS #
-$(foreach pair,$(OS_OBJ_SRC_C),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
-	mkdir -p $(OS_OBJ_DIR) ; \
-	$(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
+$(foreach pair,$(OS_OBJ_SRC_C), \
+  $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(OS_OBJ_DIR) ; \
+      $(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
 
-$(foreach pair,$(OS_OBJ_SRC_ASM),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
-	mkdir -p $(OS_OBJ_DIR) ; \
-	$(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
+$(foreach pair,$(OS_OBJ_SRC_ASM), \
+  $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(OS_OBJ_DIR) ; \
+      $(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
 
 # Build HV and OS #
 .PHONY: all
