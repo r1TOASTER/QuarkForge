@@ -11,8 +11,6 @@ OBJCOPY = aarch64-none-elf-objcopy
 # Flags #
 CC_FLAGS = -march=armv8-a -mcpu=cortex-a53 -mfix-cortex-a53-843419
 CC_FLAGS += -Wall -Wextra -pedantic-errors -g
-#
-AS_FLAGS = -g
 LD_FLAGS = -T linker.ld -nostdlib -static --gc-sections
 OBJCOPY_FLAGS = -O binary
 
@@ -37,11 +35,18 @@ HV_OBJ_DIR := $(HV_BUILD_DIR)/Objects
 OS_OBJ_DIR := $(OS_BUILD_DIR)/Objects
 
 # Objects lists #
-HV_OBJS := $(patsubst $(HV)/%.c,$(HV_OBJ_DIR)/%.o,$(HV_C_SRCS))
-HV_OBJS += $(patsubst $(HV)/%.S,$(HV_OBJ_DIR)/%.o,$(HV_ASM_SRCS))
+HV_OBJS := $(addprefix $(HV_OBJ_DIR)/,$(notdir $(HV_C_SRCS:.c=.o)))
+HV_OBJS += $(addprefix $(HV_OBJ_DIR)/,$(notdir $(HV_ASM_SRCS:.S=.o)))
 #
-OS_OBJS := $(patsubst $(OS)/%.c,$(OS_OBJ_DIR)/%.o,$(OS_C_SRCS))
-OS_OBJS += $(patsubst $(OS)/%.S,$(OS_OBJ_DIR)/%.o,$(OS_ASM_SRCS))
+OS_OBJS := $(addprefix $(OS_OBJ_DIR)/,$(notdir $(OS_C_SRCS:.c=.o)))
+OS_OBJS += $(addprefix $(OS_OBJ_DIR)/,$(notdir $(OS_ASM_SRCS:.S=.o)))
+
+# Mapping objs to sources #
+HV_OBJ_SRC_C = $(foreach src,$(HV_C_SRCS),$(OS_OBJ_DIR)/$(notdir $(src:.c=.o)):$(src))
+HV_OBJ_SRC_ASM = $(foreach src,$(HV_ASM_SRCS),$(OS_OBJ_DIR)/$(notdir $(src:.S=.o)):$(src))
+#
+OS_OBJ_SRC_C = $(foreach src,$(OS_C_SRCS),$(OS_OBJ_DIR)/$(notdir $(src:.c=.o)):$(src))
+OS_OBJ_SRC_ASM = $(foreach src,$(OS_ASM_SRCS),$(OS_OBJ_DIR)/$(notdir $(src:.S=.o)):$(src))
 
 # Targets #
 HV_TARGET = $(HV_BUILD_DIR)/$(HV).bin
@@ -52,22 +57,22 @@ HV_IMG = $(HV_BUILD_DIR)/$(HV).elf
 OS_IMG = $(OS_BUILD_DIR)/$(OS).elf
 
 # Assemble .c and .S files into .o (object files - object directory) - HV #
-$(HV_OBJ_DIR)/%.o: $(HV)/%.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $< -o $@
+$(foreach pair,$(HV_OBJ_SRC_C),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
+	mkdir -p $(HV_OBJ_DIR) ; \
+	$(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
 
-$(HV_OBJ_DIR)/%.o: $(HV)/%.S
-	@mkdir -p $(dir $@)
-	$(AS) $(AS_FLAGS) $< -o $@
+$(foreach pair,$(HV_OBJ_SRC_ASM),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
+	mkdir -p $(HV_OBJ_DIR) ; \
+	$(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
 
 # Assemble .c and .S files into .o (object files - object directory) - OS #
-$(OS_OBJ_DIR)/%.o: $(OS)/%.c
-	@mkdir -p $(dir $@)
-	$(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $< -o $@
+$(foreach pair,$(OS_OBJ_SRC_C),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
+	mkdir -p $(OS_OBJ_DIR) ; \
+	$(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
 
-$(OS_OBJ_DIR)/%.o: $(OS)/%.S
-	@mkdir -p $(dir $@)
-	$(AS) $(AS_FLAGS) $< -o $@
+$(foreach pair,$(OS_OBJ_SRC_ASM),$(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) ; \
+	mkdir -p $(OS_OBJ_DIR) ; \
+	$(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
 
 # Build HV and OS #
 .PHONY: all
