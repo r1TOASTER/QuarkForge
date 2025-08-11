@@ -9,18 +9,20 @@
     fourth group - low_el_aarch32 - exception made from lower EL (only EL0), the arch that made the exception is aarch32
  */
 
+# save/restore regs macro
+.include "arch/aarch64/reg.S"
+
 # the macro will save registers, call the handler, restore the registers and eret
 .macro  evt_entry name, el, sp, handler, arch
 .balign 2048
-.ifeq   \el, 0    # check if the entry should even be generated - current EL should raise only specific exceptions
+# check if the entry should even be generated - current EL should raise only specific exceptions
+.if     \el == 0    
 save_regs
 bl      handler
-restore_regs
-b       _end      
-.endif
+restore_regs      
 .else
-b      handler
-_end:
+b       handler
+.endif
 eret
 .endm
 
@@ -44,5 +46,7 @@ evt_entry irq, 0, 0, default_handler, 32
 evt_entry fiq, 0, 0, default_handler, 32
 evt_entry serror, 0, 0, default_handler, 32
 
+# TODO - handlers
+
 default_handler:
-    nop # TODO - handlers
+    nop
