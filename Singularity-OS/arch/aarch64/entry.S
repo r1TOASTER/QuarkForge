@@ -26,6 +26,7 @@ zero_registers:
 
 # configuring the evt address for el1 (kernel) traps, then 'flushing' the cpu to let him see the changes
 evt_setup:
+# TODO: configure more using SCTLR (or SCTLR_EL1)
     ldr     x0, =_evt
     lsl     x0, x0, #11
     msr     VBAR_EL1, x0
