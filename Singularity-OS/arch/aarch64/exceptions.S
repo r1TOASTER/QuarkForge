@@ -9,10 +9,18 @@
     fourth group - low_el_aarch32 - exception made from lower EL (only EL0), the arch that made the exception is aarch32
  */
 
-# save/restore regs macro
 .include "arch/aarch64/reg.S"
 
-# the macro will save registers, call the handler, restore the registers and eret
+/*
+    @brief - Macro to generate EVT entries for trapping EL1 on aarch64
+    @body - 
+        each entry is aligned to 0x80 (entry size, padding)
+        in the case of a normal exception:
+            save registers, call the handler, restore the registers and eret
+        else: 
+            just call the handler and eret
+        TODO: making sure this logic makes sense
+ */ 
 .macro  evt_entry name, el, sp, handler, arch
 .balign 0x80
 # check if the entry should even be generated - current EL should raise only specific exceptions
@@ -26,9 +34,11 @@
     eret
 .endm
 
+# section according to the linker script
 .section .evt
 .global evt_table
 
+# evt table is aligned to 2KB according to specs
 evt_table:
 .balign 2048
 # el1, sp0, aarch64
