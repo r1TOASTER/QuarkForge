@@ -9,11 +9,11 @@ CC = aarch64-none-elf-gcc
 OBJCOPY = aarch64-none-elf-objcopy
 
 # Flags #
-CC_FLAGS = -march=armv8-a -mcpu=cortex-a53 -mfpu=neon-fp-armv8 --fix-cortex-a53-843419 -mfloat-abi=hard -mno-red-zone -static -nostdlib -ffreestanding
-CC_FLAGS += -Wall -Wextra -g
+CC_FLAGS = -march=armv8-a -mcpu=cortex-a53 -mfix-cortex-a53-843419
+CC_FLAGS += -Wall -Wextra -pedantic-errors -g
 #
 AS_FLAGS = -g
-LD_FLAGS = -T linker.ld
+LD_FLAGS = -T linker.ld -nostdlib -static --gc-sections
 OBJCOPY_FLAGS = -O binary
 
 # Sources lists #
@@ -75,15 +75,15 @@ all: $(HV_TARGET) $(OS_TARGET)
 
 # Build HV free-standing #
 .PHONY: hv
-$(HV_TARGET): $(HV_OBJS)
-	$(LD) $(LD_FLAGS) $^ -o $@
-	$(OBJCOPY) $(OBJCOPY_FLAGS) $(HV_TARGET) $(HV_IMG)
+hv: $(HV_OBJS)
+	$(LD) $(LD_FLAGS) $(HV_OBJS) -o $(HV_IMG)
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $(HV_IMG) $(HV_TARGET)
 
 # Build OS free-standing #
 .PHONY: os
-$(OS_TARGET): $(OS_OBJS)
-	$(LD) $(LD_FLAGS) $^ -o $@
-	$(OBJCOPY) $(OBJCOPY_FLAGS) $(OS_TARGET) $(OS_IMG)
+os: $(OS_OBJS)
+	$(LD) $(LD_FLAGS) $(OS_OBJS) -o $(OS_IMG)
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $(OS_IMG) $(OS_TARGET)
 	
 # Clean the entire build #
 .PHONY: clean
