@@ -13,6 +13,8 @@ zero_bss:
     sub     x1, x1, x0 # offset
     bl      memzero
 
+# TODO: data section move to location? or just linker script will do it
+
 call_kernel:
     bl      kmain
     b       .

@@ -28,10 +28,12 @@ SECTIONS {
     . = ALIGN(4K);
 
     /* Writable data segment */
+    _sdata = .;
     .data : {
         *(.data)
     }
     . = ALIGN(4K);
+    _edata = .;
 
     /* Uninitialized data segment */
     _sbss = .;
