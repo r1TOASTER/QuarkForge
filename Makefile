@@ -76,7 +76,9 @@ $(foreach pair,$(OS_OBJ_SRC_ASM),$(eval $(firstword $(subst :, ,$(pair))): $(las
 
 # Build HV and OS #
 .PHONY: all
-all: hv os
+all:
+	-$(MAKE) hv
+	-$(MAKE) os
 
 # Build HV free-standing #
 .PHONY: hv
