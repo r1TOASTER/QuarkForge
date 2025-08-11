@@ -31,21 +31,27 @@
 
 evt_table:
 .balign 2048
+# el1, sp0, aarch64
 evt_entry sync, 1, 0, default_handler, 64
 evt_entry irq, 1, 0, default_handler, 64
 evt_entry fiq, 1, 0, default_handler, 64
 evt_entry serror, 1, 0, default_handler, 64
 
+# el1, sp1, aarch64
 evt_entry sync, 1, 1, default_handler, 64
 evt_entry irq, 1, 1, default_handler, 64
 evt_entry fiq, 1, 1, default_handler, 64
 evt_entry serror, 1, 1, default_handler, 64
 
+# TODO: make sure using sp0
+# el0, sp0, aarch64
 evt_entry sync, 0, 0, default_handler, 64
 evt_entry irq, 0, 0, default_handler, 64
 evt_entry fiq, 0, 0, default_handler, 64
 evt_entry serror, 0, 0, default_handler, 64
 
+# TODO: make sure using sp0
+# el0, sp0, aarch32
 evt_entry sync, 0, 0, default_handler, 32
 evt_entry irq, 0, 0, default_handler, 32
 evt_entry fiq, 0, 0, default_handler, 32
