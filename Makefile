@@ -77,7 +77,10 @@ $(foreach pair,$(OS_OBJ_SRC_ASM),$(eval $(firstword $(subst :, ,$(pair))): $(las
 # Build HV and OS #
 .PHONY: all
 all:
+	@echo "\nTrying to Build Quanta Hypervisor\n"
 	-$(MAKE) hv
+
+	@echo "\nTrying to Build Singularity Operating System\n"
 	-$(MAKE) os
 
 # Build HV free-standing #
