@@ -76,19 +76,21 @@ $(foreach pair,$(OS_OBJ_SRC_ASM),$(eval $(firstword $(subst :, ,$(pair))): $(las
 
 # Build HV and OS #
 .PHONY: all
-all: $(HV_TARGET) $(OS_TARGET)
+all: hv os
 
 # Build HV free-standing #
 .PHONY: hv
 hv: $(HV_OBJS)
 	$(LD) $(LD_FLAGS) $(HV_OBJS) -o $(HV_IMG)
 	$(OBJCOPY) $(OBJCOPY_FLAGS) $(HV_IMG) $(HV_TARGET)
+	@echo "\nFinished Quanta Hypervisor Build\n"
 
 # Build OS free-standing #
 .PHONY: os
 os: $(OS_OBJS)
 	$(LD) $(LD_FLAGS) $(OS_OBJS) -o $(OS_IMG)
 	$(OBJCOPY) $(OBJCOPY_FLAGS) $(OS_IMG) $(OS_TARGET)
+	@echo "\nFinished Singularity Operating System Build\n"
 	
 # Clean the entire build #
 .PHONY: clean
