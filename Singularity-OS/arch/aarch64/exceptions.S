@@ -18,13 +18,16 @@
 # check if the entry should even be generated - current EL should raise only specific exceptions
 .if     \el == 0    
     save_regs
-    bl      handler
+    bl      \handler
     restore_regs      
 .else
-    b       handler
+    b       \handler
 .endif
     eret
 .endm
+
+.section .evt
+.global evt_table
 
 evt_table:
 .balign 2048
