@@ -14,18 +14,20 @@
 
 # the macro will save registers, call the handler, restore the registers and eret
 .macro  evt_entry name, el, sp, handler, arch
-.balign 2048
+.balign 0x80
 # check if the entry should even be generated - current EL should raise only specific exceptions
 .if     \el == 0    
-save_regs
-bl      handler
-restore_regs      
+    save_regs
+    bl      handler
+    restore_regs      
 .else
-b       handler
+    b       handler
 .endif
-eret
+    eret
 .endm
 
+evt_table:
+.balign 2048
 evt_entry sync, 1, 0, default_handler, 64
 evt_entry irq, 1, 0, default_handler, 64
 evt_entry fiq, 1, 0, default_handler, 64

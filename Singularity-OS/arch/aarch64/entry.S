@@ -1,12 +1,33 @@
+.include "arch/aarch64/reg.S"
+
 .section .text
 .global _start
 
 _start:
-    # TODO!
-    # possible hypervisor + device tree - check xN for signture (hypervisor standard should be written)
-    # check if has info from it - store
-    # later - x0 and x1 can be used for zeroing out the bss section
-    # cmp     x0, SIGNUTRE
+    /*
+        TODO 1:
+        possible hypervisor + device tree - check xN for signture (hypervisor standard should be written)
+        check if has info from it - store
+        later - x0 and x1 can be used for zeroing out the bss section
+        cmp     x0, SIGNUTRE
+        TODO 2:
+        one setup core, scheduler will handle threads and SMP
+    */
+
+no_hv:
+# zero registers after check failed (no hv / dtb info)
+zero_registers:
+    memzero_regs
+
+# configuring the evt address for el1 (kernel) traps, then 'flushing' the cpu to let him see the changes
+evt_setup:
+    ldr     x0, =_evt
+    lsl     x0, x0, #11
+    msr     VBAR_EL1, x0
+    isb
+
+self_lower_to_el1:
+# TODO
 
 zero_bss:
     # load start and end address of bss section (from linker file variable exposing) and calc the offset for memzero
@@ -18,5 +39,6 @@ zero_bss:
 # TODO: data section move to location? or just linker script will do it
 
 call_kernel:
+# TODO: setup sp and go down to EL1 (if not provided by HV)
     bl      kmain
     b       .
