@@ -23,15 +23,11 @@
  */ 
 .macro  __m_evt_entry name, el, sp, handler, arch
 .balign 0x80
-    # check if the entry should even be generated - current EL should raise only specific exceptions
-    .if     \el == 0    
-        __m_save_regs
-        bl      \handler
-        __m_restore_regs      
-    .else
-        b       \handler
-    .endif
-        eret
+    # TODO: do a check for handling maybe - if there are exception not worthing the overhead 
+    __m_save_volatile
+    bl      \handler
+    __m_restore_volatile
+    eret
 .endm
 
 # section according to the linker script

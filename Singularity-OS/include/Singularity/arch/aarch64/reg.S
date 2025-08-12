@@ -13,33 +13,45 @@
 .endm
 
 # using SP_EL0 and atomic instructions to save registers
-.macro __m_save_volatile, el
+.macro __m_save_volatile
 # x9-x15 can be corrupted (non saved)
-# saving SPSR (for PSTATE) and ELR (for eret)
-    add     SP_EL0, SP_EL0, #192
+# reading the SP_EL0 to use it as storage index
+    mrs     x9, SP_EL0
+# reading the MSRs to store them
+    mrs     x10, SPSR_EL1
+    mrs     x11, ELR_EL1
+
+    add     x9, x9, #192
+# updating the new SP_EL0
+    msr     SP_EL0, x9
     .irp    n,0,1,2,3,4,5,6,7,8
-        str     x\n, [SP_EL0, #\n*8]!
+        str     x\n, [x9, #8*(\n)]!
     .endr
     .irp    n,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
-    .set    n, \n-7
-        str     x\n, [SP_EL0, #\n*8]!
+        str     x\n, [x9, #8*(\n-7)]!
     .endr
-    str     SPSR_EL\el, [SP_EL0, #176]!
-    str     ELR_EL\el, [SP_EL0, #184]!
+    str     x10, [x9, #176]!
+    str     x11, [x9, #184]!
 .endm
 
 # using SP_EL0 and atomic instruction to restore registers
 .macro __m_restore_volatile
+# x9-x15 can be corrupted (non saved)
+    mrs     x9, SP_EL0
+
     .irp    n,0,1,2,3,4,5,6,7,8
-        ldr     x\n, [SP_EL0, #\n*8]!
+        ldr     x\n, [x9, #8*(\n)]!
     .endr
     .irp    n,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
-    .set    n, \n-7
-        ldr     x\n, [SP_EL0, #\n*8]!
+        ldr     x\n, [x9, #8*(\n-7)]!
     .endr
-    ldr     SPSR_EL\el, [SP_EL0, #176]!
-    ldr     ELR_EL\el, [SP_EL0, #184]!
-    sub     SP_EL0, SP_EL0, #192
+    ldr     x10, [x9, #176]!
+    ldr     x11, [x9, #184]!
+    sub     x9, x9, #192
+# writing the new / loaded values to the MSRs
+    msr     SP_EL0, x9
+    msr     SPSR_EL1, x10
+    msr     ELR_EL1, x11
 .endm
 
 # using SP_EL0 to save registers
