@@ -23,15 +23,12 @@ This document defines the standard naming conventions used across both the Quant
 
 ---
 
-## Full Table Summary
+## Naming Conventions
 
-| Naming Aspect      | Convention Example          | Notes                           |
-| ------------------ | ---------------------------|--------------------------------|
-| Assembly Macro     | `__m_` prefix               | Macro names in `.S` files       |
-| Kernel Function    | `__f_` prefix               | Kernel internal functions       |
-| Type Alias         | `_t` suffix                 | For type definitions            |
-| Struct             | `_s` suffix                 | For struct declarations         |
-| Enum               | `_e` suffix                 | For enum declarations           |
+| Pattern | Usage | Description |
+| ------- | ----- | ----------- |
+| `_XXX_H` | Headers Include | Used for include guards in header files (`.h`). Example: `_POWER_H` |
+| `XXXXXX` | C Defined Macros    | Used for macros defined in C files / header (`.c`, `.h`). Example: `WRITE_MSR` |
 
 ---
 
