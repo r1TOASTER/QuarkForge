@@ -13,11 +13,10 @@ SECTIONS {
         *(.text.entry)
         *(.text)
     }
-    . = ALIGN(4K);
+    . = ALIGN(2K);
 
+    _evt = .;
     .vectors : {
-        _evt = .;
-        . = ALIGN(2K);
         KEEP(*(.evt))
         KEEP(*(.bridge))
     }

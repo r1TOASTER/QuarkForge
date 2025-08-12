@@ -44,6 +44,7 @@
 
 # evt table is aligned to 2KB according to specs
 evt_table:
+.balign 2048
     # el1, sp0, aarch64
     __m_evt_entry sync, el1_sp0_aarch64_bhandler
     __m_evt_entry irq, el1_sp0_aarch64_bhandler
