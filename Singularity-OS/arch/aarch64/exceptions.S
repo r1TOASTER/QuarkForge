@@ -12,14 +12,12 @@
 .include "Singularity/arch/aarch64/reg.S"
 
 /*
-    @brief - Macro to generate EVT entries for trapping EL1 on aarch64
+    @brief - Macro to generate the bridge handlers that will save/restore, jump to isr and eret
     @body - 
-        each entry is aligned to 0x80 (entry size, padding)
-        in the case of a normal exception:
-            save registers, call the handler, restore the registers and eret
-        else: 
-            just call the handler and eret
-        TODO: making sure this logic makes sense
+        save registers on sp_el0
+        call the isr based on the arguments el, sp and arch
+        restore the registers from sp_el0
+        return from the exception (eret)
  */ 
 
 # Macro to generate bridge handlers (saving registers, jumping to isr, restoring registers, eret) - evt entries size not large enough alone
@@ -35,7 +33,13 @@
 .section .evt
 .global evt_table
 
-# Macro to generate the evt entries to jump to the bridge handler for real exception handling
+/*
+    @brief - Macro to generate EVT entries for trapping EL1 on aarch64
+    @body - 
+        each entry is aligned to 0x80 (entry size, padding)
+        jump to a bridge handler - not enough size for save/restore etc
+ */ 
+
 .macro  __m_evt_entry type, bridge_handler
 .balign 0x80
     # TODO: do a check for handling maybe - if there are exception not worthing the overhead 
