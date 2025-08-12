@@ -22,9 +22,9 @@
 
 .macro __m_bridge_handler, el, sp, arch
 \el\()_sp\sp\()_aarch\arch\()_bhandler:
-    __m_save_volatile
+    __m_save_regs
     bl      \el\()_sp\sp\()_aarch\arch\()_isr
-    __m_restore_volatile
+    __m_restore_regs
     eret
 .endm
 

@@ -13,7 +13,7 @@
 .endm
 
 # using SP_EL0 and atomic instructions to save registers
-.macro __m_save_volatile
+.macro __m_save_regs
 # x9-x15 can be corrupted (non saved)
 # reading the SP_EL0 to use it as storage index
     mrs     x9, SP_EL0
@@ -35,7 +35,7 @@
 .endm
 
 # using SP_EL0 and atomic instruction to restore registers
-.macro __m_restore_volatile
+.macro __m_restore_regs
 # x9-x15 can be corrupted (non saved)
     mrs     x9, SP_EL0
 
@@ -52,16 +52,6 @@
     msr     SP_EL0, x9
     msr     SPSR_EL1, x10
     msr     ELR_EL1, x11
-.endm
-
-# using SP_EL0 to save registers
-.macro  __m_save_regs
-# TODO - save wanted registers - push / str to memory
-.endm
-
-# using SP_EL0 to restore registers
-.macro  __m_restore_regs
-# TODO - restore saved registers (literally reverse of save if stack) - pop / ldr from memory
 .endm
 
 #endif
