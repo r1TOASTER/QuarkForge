@@ -9,7 +9,7 @@
     fourth group - low_el_aarch32 - exception made from lower EL (only EL0), the arch that made the exception is aarch32
  */
 
-.include "arch/aarch64/reg.s"
+.include "arch/aarch64/reg.S"
 
 /*
     @brief - Macro to generate EVT entries for trapping EL1 on aarch64
@@ -21,17 +21,17 @@
             just call the handler and eret
         TODO: making sure this logic makes sense
  */ 
-.macro  evt_entry name, el, sp, handler, arch
+.macro  __m_evt_entry name, el, sp, handler, arch
 .balign 0x80
-# check if the entry should even be generated - current EL should raise only specific exceptions
-.if     \el == 0    
-    save_regs
-    bl      \handler
-    restore_regs      
-.else
-    b       \handler
-.endif
-    eret
+    # check if the entry should even be generated - current EL should raise only specific exceptions
+    .if     \el == 0    
+        __m_save_regs
+        bl      \handler
+        __m_restore_regs      
+    .else
+        b       \handler
+    .endif
+        eret
 .endm
 
 # section according to the linker script
@@ -42,30 +42,30 @@
 evt_table:
 .balign 2048
 # el1, sp0, aarch64
-evt_entry sync, 1, 0, default_handler, 64
-evt_entry irq, 1, 0, default_handler, 64
-evt_entry fiq, 1, 0, default_handler, 64
-evt_entry serror, 1, 0, default_handler, 64
+__m_evt_entry sync, 1, 0, default_handler, 64
+__m_evt_entry irq, 1, 0, default_handler, 64
+__m_evt_entry fiq, 1, 0, default_handler, 64
+__m_evt_entry serror, 1, 0, default_handler, 64
 
 # el1, sp1, aarch64
-evt_entry sync, 1, 1, default_handler, 64
-evt_entry irq, 1, 1, default_handler, 64
-evt_entry fiq, 1, 1, default_handler, 64
-evt_entry serror, 1, 1, default_handler, 64
+__m_evt_entry sync, 1, 1, default_handler, 64
+__m_evt_entry irq, 1, 1, default_handler, 64
+__m_evt_entry fiq, 1, 1, default_handler, 64
+__m_evt_entry serror, 1, 1, default_handler, 64
 
 # TODO: make sure using sp0
 # el0, sp0, aarch64
-evt_entry sync, 0, 0, default_handler, 64
-evt_entry irq, 0, 0, default_handler, 64
-evt_entry fiq, 0, 0, default_handler, 64
-evt_entry serror, 0, 0, default_handler, 64
+__m_evt_entry sync, 0, 0, default_handler, 64
+__m_evt_entry irq, 0, 0, default_handler, 64
+__m_evt_entry fiq, 0, 0, default_handler, 64
+__m_evt_entry serror, 0, 0, default_handler, 64
 
 # TODO: make sure using sp0
 # el0, sp0, aarch32
-evt_entry sync, 0, 0, default_handler, 32
-evt_entry irq, 0, 0, default_handler, 32
-evt_entry fiq, 0, 0, default_handler, 32
-evt_entry serror, 0, 0, default_handler, 32
+__m_evt_entry sync, 0, 0, default_handler, 32
+__m_evt_entry irq, 0, 0, default_handler, 32
+__m_evt_entry fiq, 0, 0, default_handler, 32
+__m_evt_entry serror, 0, 0, default_handler, 32
 
 # TODO - handlers
 

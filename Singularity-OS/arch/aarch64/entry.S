@@ -2,10 +2,7 @@
     @brief - entry point of the entire system, initializtion and jumping to kernel main function
  */
 
-
-.include "arch/aarch64/reg.s"
-.include "arch/aarch64/psci.s"
-.extern memzero
+.include "arch/aarch64/reg.S"
 
 .section .text
 .global _start
@@ -24,7 +21,7 @@ _start:
 no_hv:
 # zero registers after check failed (no hv / dtb info)
 zero_registers:
-    memzero_regs
+    __m_memzero_regs
 
 # configuring the evt address for el1 (kernel) traps, then 'flushing' the cpu to let him see the changes
 evt_setup:
