@@ -5,6 +5,7 @@
 
 .include "arch/aarch64/reg.s"
 .include "arch/aarch64/psci.s"
+.extern memzero
 
 .section .text
 .global _start

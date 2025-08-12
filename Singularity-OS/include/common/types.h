@@ -11,4 +11,7 @@ typedef signed short int16_t;
 typedef signed int int32_t;
 typedef signed long int64_t;
 
+#define FALSE (0)
+#define TRUE (!FALSE)
+
 #endif

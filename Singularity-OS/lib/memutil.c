@@ -1,9 +1,13 @@
-#include "common/types.h"
+#include "include/common/types.h"
 
-void memzero(void* addr, uint32_t count) {    
-    char* p = (char*)addr;
+void memset(void* addr, uint8_t val, uint32_t count) {
+    uint8_t* p = (uint8_t*)addr;
 
     while (--count) {
-        *p++ = 0;
+        *p++ = val;
     }
+}
+
+void memzero(void* addr, uint32_t count) {    
+    memset(addr, 0, count);
 }

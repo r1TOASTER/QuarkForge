@@ -1,5 +1,6 @@
 #include "kernel.h"
+#include "include/common/types.h"
 
 void kmain() {
-    return;
+    while (TRUE) { }
 }

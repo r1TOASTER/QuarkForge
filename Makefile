@@ -9,7 +9,7 @@ CC = aarch64-none-elf-gcc
 OBJCOPY = aarch64-none-elf-objcopy
 
 # Flags #
-CC_FLAGS = -march=armv8-a -mcpu=cortex-a53 -mfix-cortex-a53-843419
+CC_FLAGS = -march=armv8-a -mcpu=cortex-a53 -mfix-cortex-a53-843419 -ffreestanding -nostdlib -nostartfiles -nostdinc
 CC_FLAGS += -Wall -Wextra -pedantic-errors -g
 LD_FLAGS = -T linker.ld -nostdlib -static --gc-sections
 OBJCOPY_FLAGS = -O binary
@@ -67,20 +67,20 @@ $(OS_OBJ_DIR):
 # Assemble .c and .S files into .o (object files - object directory) - HV #
 $(foreach pair,$(HV_OBJ_SRC_C), \
   $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(HV_OBJ_DIR) ; \
-      $(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
+      $(CC) $(HV_INCLUDE_FLAGS) $(CC_FLAGS) -c $$< -o $$@ ))
 
 $(foreach pair,$(HV_OBJ_SRC_ASM), \
   $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(HV_OBJ_DIR) ; \
-      $(CC) $(CC_FLAGS) $(HV_INCLUDE_FLAGS) -c $$< -o $$@ ))
+      $(CC) $(HV_INCLUDE_FLAGS) $(CC_FLAGS) -c $$< -o $$@ ))
 
 # Assemble .c and .S files into .o (object files - object directory) - OS #
 $(foreach pair,$(OS_OBJ_SRC_C), \
   $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(OS_OBJ_DIR) ; \
-      $(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
+      $(CC) $(OS_INCLUDE_FLAGS) $(CC_FLAGS) -c $$< -o $$@ ))
 
 $(foreach pair,$(OS_OBJ_SRC_ASM), \
   $(eval $(firstword $(subst :, ,$(pair))): $(lastword $(subst :, ,$(pair))) | $(OS_OBJ_DIR) ; \
-      $(CC) $(CC_FLAGS) $(OS_INCLUDE_FLAGS) -c $$< -o $$@ ))
+      $(CC) $(OS_INCLUDE_FLAGS) $(CC_FLAGS) -c $$< -o $$@ ))
 
 # Build HV and OS #
 .PHONY: all
