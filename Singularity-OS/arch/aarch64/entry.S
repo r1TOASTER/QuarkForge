@@ -4,6 +4,7 @@
 
 
 .include "arch/aarch64/reg.S"
+.include "arch/aarch64/psci.S"
 
 .section .text
 .global _start
@@ -43,6 +44,13 @@ zero_bss:
     bl      memzero
 
 # TODO: data section move to location? or just linker script will do it
+
+# check which core currently running, if 0 jump to kernel, else halt until scheduler changes it
+cores_num:
+    mrs     x0, MPIDR_EL1
+    and     x0, x0, #3
+    cbz     x0, call_kernel
+    b       halt_core
 
 call_kernel:
 # TODO: setup sp and go down to EL1 (if not provided by HV)
