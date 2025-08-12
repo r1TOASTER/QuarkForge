@@ -19,6 +19,11 @@ _start:
     */
 
 no_hv:
+# TODO: disable trapping to EL2
+
+hv:
+# TODO: store x1 (device tree)
+
 # zero registers after check failed (no hv / dtb info)
 zero_registers:
     __m_memzero_regs
@@ -31,8 +36,15 @@ evt_setup:
     msr     VBAR_EL1, x0
     isb
 
+# check which core currently running, if 0 jump to kernel, else halt until scheduler changes it
+cores_num:
+    mrs     x0, MPIDR_EL1
+    and     x0, x0, #3
+    cbz     x0, call_kernel
+    b       halt_core
+
 self_lower_to_el1:
-# TODO
+# TODO (figure also where to put in code)
 
 zero_bss:
     # load start and end address of bss section (from linker file variable exposing) and calc the offset for memzero
@@ -42,13 +54,6 @@ zero_bss:
     bl      memzero
 
 # TODO: data section move to location? or just linker script will do it
-
-# check which core currently running, if 0 jump to kernel, else halt until scheduler changes it
-cores_num:
-    mrs     x0, MPIDR_EL1
-    and     x0, x0, #3
-    cbz     x0, call_kernel
-    b       halt_core
 
 call_kernel:
 # TODO: setup sp and go down to EL1 (if not provided by HV)
