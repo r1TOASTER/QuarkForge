@@ -16,10 +16,10 @@ OBJCOPY_FLAGS = -O binary
 
 # Sources lists #
 HV_C_SRCS = $(shell find $(HV) -name '*.c')
-HV_ASM_SRCS = $(shell find $(HV) \( -name '*.S' -o -name '*.s' \))
+HV_ASM_SRCS = $(shell find $(HV) -name '*.S')
 #
 OS_C_SRCS = $(shell find $(OS) -name '*.c')
-OS_ASM_SRCS = $(shell find $(OS) \( -name '*.S' -o -name '*.s' \))
+OS_ASM_SRCS = $(shell find $(OS) -name '*.S')
 
 # Includes lists #
 HV_INCLUDE_FLAGS := -I$(HV)
@@ -37,11 +37,9 @@ OS_OBJ_DIR := $(OS_BUILD_DIR)/Objects
 # Objects lists #
 HV_OBJS := $(addprefix $(HV_OBJ_DIR)/,$(notdir $(HV_C_SRCS:.c=.o)))
 HV_OBJS += $(addprefix $(HV_OBJ_DIR)/,$(notdir $(HV_ASM_SRCS:.S=.o)))
-HV_OBJS := $(patsubst %.s,%.o,$(HV_OBJS))
 #
 OS_OBJS := $(addprefix $(OS_OBJ_DIR)/,$(notdir $(OS_C_SRCS:.c=.o)))
 OS_OBJS += $(addprefix $(OS_OBJ_DIR)/,$(notdir $(OS_ASM_SRCS:.S=.o)))
-OS_OBJS := $(patsubst %.s,%.o,$(OS_OBJS))
 
 # Mapping objs to sources #
 HV_OBJ_SRC_C = $(foreach src,$(HV_C_SRCS),$(OS_OBJ_DIR)/$(notdir $(src:.c=.o)):$(src))
