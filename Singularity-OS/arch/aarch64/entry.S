@@ -36,6 +36,14 @@ evt_setup:
     msr     VBAR_EL1, x0
     isb
 
+# TODO: check if needed and here
+mmu_config:
+# configure MMU
+
+# TODO: check if needed and here
+gic_setup:
+# setup GIC
+
 # check which core currently running, if 0 jump to kernel, else halt until scheduler changes it
 cores_num:
     mrs     x0, MPIDR_EL1
@@ -56,6 +64,6 @@ zero_bss:
 # TODO: data section move to location? or just linker script will do it
 
 call_kernel:
-# TODO: setup sp and go down to EL1 (if not provided by HV)
+# TODO: setup SP (maybe before for DT and Signuture / Info from HV?)
     bl      kmain
     b       .
