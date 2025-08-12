@@ -6,18 +6,21 @@ ENTRY(_start)
 */
 
 SECTIONS {
-    . = 0xFFFF0000;
-    _evt = .;
-    .vectors : {
-        KEEP(*(.evt))
-    }
-
+    
     . = 0x80000;
-
+    
     /* Code segment: readable and executable */
     .text : {
+        *(.text.entry)
         *(.text)
-        *(.text.*)
+    }
+    . = ALIGN(4K);
+
+    .vectors : {
+        _evt = .;
+        . = ALIGN(2K);
+        KEEP(*(.evt))
+        KEEP(*(.bridge))
     }
     . = ALIGN(4K);
 

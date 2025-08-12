@@ -31,6 +31,10 @@
     eret
 .endm
 
+# section according to the linker script
+.section .evt
+.global evt_table
+
 # Macro to generate the evt entries to jump to the bridge handler for real exception handling
 .macro  __m_evt_entry type, bridge_handler
 .balign 0x80
@@ -38,28 +42,8 @@
     b      \bridge_handler
 .endm
 
-# section according to the linker script
-.section .bridge
-.global generate_handlers
-
-# Generate the bridge handlers
-
-# el1, sp0, aarch64
-__m_bridge_handler el1, 0, 64
-# el1, sp1, aarch64
-__m_bridge_handler el1, 1, 64
-# el0, sp0, aarch64
-__m_bridge_handler el0, 0, 64
-# el0, sp0, aarch32
-__m_bridge_handler el0, 0, 32
-
-# section according to the linker script
-.section .evt
-.global evt_table
-
 # evt table is aligned to 2KB according to specs
 evt_table:
-.balign 2048
     # el1, sp0, aarch64
     __m_evt_entry sync, el1_sp0_aarch64_bhandler
     __m_evt_entry irq, el1_sp0_aarch64_bhandler
@@ -83,3 +67,16 @@ evt_table:
     __m_evt_entry irq, el0_sp0_aarch32_bhandler
     __m_evt_entry fiq, el0_sp0_aarch32_bhandler
     __m_evt_entry serror, el0_sp0_aarch32_bhandler
+
+# section according to the linker script
+.section .bridge
+
+# Generate the bridge handlers
+# el1, sp0, aarch64
+__m_bridge_handler el1, 0, 64
+# el1, sp1, aarch64
+__m_bridge_handler el1, 1, 64
+# el0, sp0, aarch64
+__m_bridge_handler el0, 0, 64
+# el0, sp0, aarch32
+__m_bridge_handler el0, 0, 32

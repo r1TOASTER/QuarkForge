@@ -4,7 +4,7 @@
 
 .include "Singularity/arch/aarch64/reg.S"
 
-.section .text
+.section ".text.entry"
 .global _start
 
 _start:
