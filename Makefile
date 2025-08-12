@@ -9,7 +9,8 @@ CC = aarch64-none-elf-gcc
 OBJCOPY = aarch64-none-elf-objcopy
 
 # Flags #
-CC_FLAGS = -march=armv8-a -mcpu=cortex-a53 -mfix-cortex-a53-843419 -ffreestanding -nostdlib -nostartfiles -nostdinc
+# TODO: use -mgeneral-regs-only where not using float points / SIMD
+CC_FLAGS = -march=armv8-a+simd -mcpu=cortex-a53 -mfix-cortex-a53-843419 -ffreestanding -nostdlib -nostartfiles -nostdinc -mgeneral-regs-only
 CC_FLAGS += -Wall -Wextra -pedantic-errors -g
 LD_FLAGS = -T linker.ld -nostdlib -static --gc-sections
 OBJCOPY_FLAGS = -O binary
