@@ -41,8 +41,8 @@ SECTIONS {
     .bss : {
         *(.bss)
     }
-    . = ALIGN(4K);
     _ebss = .;
+    . = ALIGN(4K);
 
     /* Discard unnecessary sections */
     /DISCARD/ : {
