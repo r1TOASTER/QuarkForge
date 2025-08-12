@@ -21,14 +21,37 @@
             just call the handler and eret
         TODO: making sure this logic makes sense
  */ 
-.macro  __m_evt_entry name, el, sp, handler, arch
-.balign 0x80
-    # TODO: do a check for handling maybe - if there are exception not worthing the overhead 
+
+# Macro to generate bridge handlers (saving registers, jumping to isr, restoring registers, eret) - evt entries size not large enough alone
+.macro __m_bridge_handler, el, sp, arch
+\el\()_sp\sp\()_aarch\arch\()_bhandler:
     __m_save_volatile
-    bl      \handler
+    bl      \el\()_sp\sp\()_aarch\arch\()_isr
     __m_restore_volatile
     eret
 .endm
+
+# Macro to generate the evt entries to jump to the bridge handler for real exception handling
+.macro  __m_evt_entry type, bridge_handler
+.balign 0x80
+    # TODO: do a check for handling maybe - if there are exception not worthing the overhead 
+    b      \bridge_handler
+.endm
+
+# section according to the linker script
+.section .bridge
+.global generate_handlers
+
+# Generate the bridge handlers
+
+# el1, sp0, aarch64
+__m_bridge_handler el1, 0, 64
+# el1, sp1, aarch64
+__m_bridge_handler el1, 1, 64
+# el0, sp0, aarch64
+__m_bridge_handler el0, 0, 64
+# el0, sp0, aarch32
+__m_bridge_handler el0, 0, 32
 
 # section according to the linker script
 .section .evt
@@ -37,33 +60,26 @@
 # evt table is aligned to 2KB according to specs
 evt_table:
 .balign 2048
-# el1, sp0, aarch64
-__m_evt_entry sync, 1, 0, default_handler, 64
-__m_evt_entry irq, 1, 0, default_handler, 64
-__m_evt_entry fiq, 1, 0, default_handler, 64
-__m_evt_entry serror, 1, 0, default_handler, 64
+    # el1, sp0, aarch64
+    __m_evt_entry sync, el1_sp0_aarch64_bhandler
+    __m_evt_entry irq, el1_sp0_aarch64_bhandler
+    __m_evt_entry fiq, el1_sp0_aarch64_bhandler
+    __m_evt_entry serror, el1_sp0_aarch64_bhandler
 
-# el1, sp1, aarch64
-__m_evt_entry sync, 1, 1, default_handler, 64
-__m_evt_entry irq, 1, 1, default_handler, 64
-__m_evt_entry fiq, 1, 1, default_handler, 64
-__m_evt_entry serror, 1, 1, default_handler, 64
+    # el1, sp1, aarch64
+    __m_evt_entry sync, el1_sp1_aarch64_bhandler
+    __m_evt_entry irq, el1_sp1_aarch64_bhandler
+    __m_evt_entry fiq, el1_sp1_aarch64_bhandler
+    __m_evt_entry serror, el1_sp1_aarch64_bhandler
 
-# TODO: make sure using sp0
-# el0, sp0, aarch64
-__m_evt_entry sync, 0, 0, default_handler, 64
-__m_evt_entry irq, 0, 0, default_handler, 64
-__m_evt_entry fiq, 0, 0, default_handler, 64
-__m_evt_entry serror, 0, 0, default_handler, 64
+    # el0, sp0, aarch64
+    __m_evt_entry sync, el0_sp0_aarch64_bhandler
+    __m_evt_entry irq, el0_sp0_aarch64_bhandler
+    __m_evt_entry fiq, el0_sp0_aarch64_bhandler
+    __m_evt_entry serror, el0_sp0_aarch64_bhandler
 
-# TODO: make sure using sp0
-# el0, sp0, aarch32
-__m_evt_entry sync, 0, 0, default_handler, 32
-__m_evt_entry irq, 0, 0, default_handler, 32
-__m_evt_entry fiq, 0, 0, default_handler, 32
-__m_evt_entry serror, 0, 0, default_handler, 32
-
-# TODO - handlers
-
-default_handler:
-    nop
+    # el0, sp0, aarch32
+    __m_evt_entry sync, el0_sp0_aarch32_bhandler
+    __m_evt_entry irq, el0_sp0_aarch32_bhandler
+    __m_evt_entry fiq, el0_sp0_aarch32_bhandler
+    __m_evt_entry serror, el0_sp0_aarch32_bhandler
