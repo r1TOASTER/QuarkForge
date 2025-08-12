@@ -20,7 +20,6 @@
         return from the exception (eret)
  */ 
 
-# Macro to generate bridge handlers (saving registers, jumping to isr, restoring registers, eret) - evt entries size not large enough alone
 .macro __m_bridge_handler, el, sp, arch
 \el\()_sp\sp\()_aarch\arch\()_bhandler:
     __m_save_volatile
