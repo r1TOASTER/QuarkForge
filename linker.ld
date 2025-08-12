@@ -1,7 +1,6 @@
 ENTRY(_start)
 
 /*
-    TODO: make a reasonable evt address
     TODO: add the RAM memory range for the RPi z2w
 */
 
