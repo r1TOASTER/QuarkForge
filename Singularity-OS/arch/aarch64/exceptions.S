@@ -9,7 +9,7 @@
     fourth group - low_el_aarch32 - exception made from lower EL (only EL0), the arch that made the exception is aarch32
  */
 
-.include "arch/aarch64/reg.S"
+.include "arch/aarch64/reg.s"
 
 /*
     @brief - Macro to generate EVT entries for trapping EL1 on aarch64

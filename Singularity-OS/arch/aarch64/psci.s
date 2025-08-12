@@ -3,6 +3,9 @@
  */
 
 
+#ifndef _PSCI_S
+#define _PSCI_S
+
 # TODO: make it go idle
 .global halt_core
 halt_core:
@@ -10,7 +13,9 @@ halt_core:
     b       .
 
 .global __cpu_reset 
-.func __cpu_reset
+.type __cpu_reset, @function
 __cpu_reset:
     # TODO - maybe ACPI is needed
-.endfunc
+    ret
+
+#endif

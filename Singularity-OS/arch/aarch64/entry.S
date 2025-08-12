@@ -3,8 +3,8 @@
  */
 
 
-.include "arch/aarch64/reg.S"
-.include "arch/aarch64/psci.S"
+.include "arch/aarch64/reg.s"
+.include "arch/aarch64/psci.s"
 
 .section .text
 .global _start
