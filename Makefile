@@ -22,8 +22,8 @@ OS_C_SRCS = $(shell find $(OS) -name '*.c')
 OS_ASM_SRCS = $(shell find $(OS) -name '*.S')
 
 # Includes lists #
-HV_INCLUDE_FLAGS := -I$(HV)
-OS_INCLUDE_FLAGS := -I$(OS)
+HV_INCLUDE_FLAGS := -I$(HV)/include
+OS_INCLUDE_FLAGS := -I$(OS)/include
 
 # Build #
 BUILD_DIR = Build
