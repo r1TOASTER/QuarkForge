@@ -21,7 +21,7 @@
     mrs     x10, SPSR_EL1
     mrs     x11, ELR_EL1
 
-    add     x9, x9, #192
+    sub     x9, x9, #208
 # updating the new SP_EL0
     msr     SP_EL0, x9
     .irp    n,0,1,2,3,4,5,6,7,8
@@ -30,8 +30,8 @@
     .irp    n,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
         str     x\n, [x9, #8*(\n-7)]!
     .endr
-    str     x10, [x9, #176]!
-    str     x11, [x9, #184]!
+    str     x10, [x9, #192]!
+    str     x11, [x9, #200]!
 .endm
 
 # using SP_EL0 and atomic instruction to restore registers
@@ -45,9 +45,9 @@
     .irp    n,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
         ldr     x\n, [x9, #8*(\n-7)]!
     .endr
-    ldr     x10, [x9, #176]!
-    ldr     x11, [x9, #184]!
-    sub     x9, x9, #192
+    ldr     x10, [x9, #192]!
+    ldr     x11, [x9, #200]!
+    add     x9, x9, #208
 # writing the new / loaded values to the MSRs
     msr     SP_EL0, x9
     msr     SPSR_EL1, x10
