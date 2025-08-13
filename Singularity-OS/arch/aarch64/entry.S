@@ -72,6 +72,7 @@ mmu_config:
 gic_setup:
 # setup GIC
 
+# TODO: Setup SP_EL0 (time for PA to VA?)
 sp_setup:
     mov     x0, #0x8000
     msr     SP_EL1, x0
@@ -108,7 +109,7 @@ check_el:
     lsr     x0, x0, #2
     cmp     x0, #1
     b.EQ    zero_bss
-    b       failed_el1
+    b       halt
 
 zero_bss:
 # load start and end address of bss section (from linker file variable exposing) and calc the offset for memzero
@@ -122,8 +123,8 @@ zero_bss:
 call_kernel:
 # TODO: setup SP (maybe before for DT and Signuture / Info from HV?)
     bl      kmain
-    b       .
+    b       halt
 
 # failed to lower el to 1
-failed_el1:
+halt:
     b       .
