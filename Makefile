@@ -13,7 +13,7 @@ OBJCOPY = aarch64-none-elf-objcopy
 CC_FLAGS = -march=armv8-a+simd -mcpu=cortex-a53 -mfix-cortex-a53-843419 -ffreestanding -nostdlib -nostartfiles -nostdinc -mgeneral-regs-only
 CC_FLAGS += -Wall -Wextra -pedantic-errors -g
 LD_FLAGS = -T linker.ld -nostdlib -static --gc-sections
-OBJCOPY_FLAGS = -O binary
+OBJCOPY_FLAGS = --strip-debug -O binary
 
 # Sources lists #
 HV_C_SRCS = $(shell find $(HV) -name '*.c')
@@ -50,12 +50,16 @@ OS_OBJ_SRC_C = $(foreach src,$(OS_C_SRCS),$(OS_OBJ_DIR)/$(notdir $(src:.c=.o)):$
 OS_OBJ_SRC_ASM = $(foreach src,$(OS_ASM_SRCS),$(OS_OBJ_DIR)/$(notdir $(src:.S=.o)):$(src))
 
 # Targets #
-HV_TARGET = $(HV_BUILD_DIR)/$(HV).bin
-OS_TARGET = $(OS_BUILD_DIR)/$(OS).bin
+HV_TARGET = $(HV_BUILD_DIR)/$(HV).img
+OS_TARGET = $(OS_BUILD_DIR)/$(OS).img
 
 # Images #
-HV_IMG = $(HV_BUILD_DIR)/$(HV).elf
-OS_IMG = $(OS_BUILD_DIR)/$(OS).elf
+HV_ELF = $(HV_BUILD_DIR)/$(HV).elf
+OS_ELF = $(OS_BUILD_DIR)/$(OS).elf
+
+# Qemu #
+QEMU = qemu-system-aarch64
+PORT = 9999
 
 # create once the HV objects directory #
 $(HV_OBJ_DIR):
@@ -95,17 +99,40 @@ all:
 # Build HV free-standing #
 .PHONY: hv
 hv: $(HV_OBJS)
-	$(LD) $(LD_FLAGS) $(HV_OBJS) -o $(HV_IMG)
-	$(OBJCOPY) $(OBJCOPY_FLAGS) $(HV_IMG) $(HV_TARGET)
+	$(LD) $(LD_FLAGS) $(HV_OBJS) -o $(HV_ELF)
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $(HV_ELF) $(HV_TARGET)
 	@echo "\nFinished Quanta Hypervisor Build\n"
 
 # Build OS free-standing #
 .PHONY: os
 os: $(OS_OBJS)
-	$(LD) $(LD_FLAGS) $(OS_OBJS) -o $(OS_IMG)
-	$(OBJCOPY) $(OBJCOPY_FLAGS) $(OS_IMG) $(OS_TARGET)
+	$(LD) $(LD_FLAGS) $(OS_OBJS) -o $(OS_ELF)
+	$(OBJCOPY) $(OBJCOPY_FLAGS) $(OS_ELF) $(OS_TARGET)
 	@echo "\nFinished Singularity Operating System Build\n"
+
+# Running OS on Qemu for AArch64 - using the raspi3b machine guest
+.PHONY: os-run
+os-run: os
+	$(QEMU) -M raspi3b \
+	-kernel $(OS_TARGET) \
+	-semihosting-config enable=on,target=native \
+	-serial none -serial mon:stdio \
+	-display none \
+	-cpu cortex-a53 \
+	-S -gdb tcp::$(PORT) \
 	
+# Running HV on Qemu for AArch64 - using the raspi3b machine guest
+# TODO: because it's HV, maybe use -deviice loader,addr=0x80000 (or where raspi actually start the boot stub), cpu-num=0?
+.PHONY: hv-run
+hv-run: hv
+	$(QEMU) -M raspi3b \
+	-kernel $(HV_TARGET) \
+	-semihosting-config enable=on,target=native \
+	-serial none -serial mon:stdio \
+	-display none \
+	-cpu cortex-a53 \
+	-S -gdb tcp::$(PORT) \
+
 # Clean the entire build #
 .PHONY: clean
 clean:
