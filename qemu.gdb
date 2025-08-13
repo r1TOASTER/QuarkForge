@@ -7,6 +7,9 @@ file Build/Singularity-OS/Singularity-OS.elf
 # Remotely connect to QEMU exposed GDB
 target remote localhost:9999
 
+# Adding monitor for exceptions
+monitor log int
+
 # when quiting gdb - quit the qemu (quitq is now an alias)
 define quitq
     monitor quit
@@ -15,4 +18,3 @@ end
 
 # Break on entry point, -S flag in QEMU holding the CPU before first breakpoint, continue to start
 break _start
-break kmain
