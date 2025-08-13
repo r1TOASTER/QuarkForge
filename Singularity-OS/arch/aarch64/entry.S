@@ -22,7 +22,7 @@ no_hv:
 # TODO: disable trapping to EL2
 
 hv:
-# TODO: store x1 (device tree)
+# TODO: store x1 or x0 (device tree)
 
 # zero registers after check failed (no hv / dtb info)
 zero_registers:
@@ -32,7 +32,6 @@ zero_registers:
 evt_setup:
 # TODO: configure more using SCTLR (or SCTLR_EL1)
     ldr     x0, =_evt
-    lsl     x0, x0, #11
     msr     VBAR_EL1, x0
     isb
 
@@ -44,18 +43,48 @@ mmu_config:
 gic_setup:
 # setup GIC
 
+sp_setup:
+    mov     x0, #0x8000
+    msr     SP_EL1, x0
+
 # check which core currently running, if 0 jump to kernel, else halt until scheduler changes it
 cores_num:
     mrs     x0, MPIDR_EL1
     and     x0, x0, #3
-    cbz     x0, call_kernel
+    cbz     x0, self_lower_to_el1
     b       halt_core
 
-self_lower_to_el1:
 # TODO (figure also where to put in code)
+self_lower_to_el1:
+# TODO: remove trapping on the regs: HCR_EL2, CPTR_EL2, HSTR_EL2
+# TODO: enable access to timers on EL1
+# set EL1 ES to Aarch64
+    mrs     x0, HCR_EL2
+    mov     x1, #1
+    lsl     x1, x1, #30
+    and     x0, x0, x1
+    msr     HCR_EL2, x0
+# set ELR to have the next label address so it would continue as el1
+    ldr     x0, =zero_bss
+    msr     ELR_EL2, x0
+# configure SPSR with proper info
+    mrs     x0, SPSR_EL2
+    mov     x1, #0b0101
+    and     x0, x0, x1
+    msr     SPSR_EL2, x0
+# drop to el1
+    eret
+
+# checking if lowering to el1 succeeded
+#     check_el:
+#         mrs     x0, CurrentEL
+#         lsr     x0, x0, #2
+#         cmp     x0, #1
+#         b.EQ    zero_bss
+#         b       failed_el1
 
 zero_bss:
-    # load start and end address of bss section (from linker file variable exposing) and calc the offset for memzero
+# load start and end address of bss section (from linker file variable exposing) and calc the offset for memzero
     ldr     x0, =_sbss
     ldr     x1, =_ebss
     sub     x1, x1, x0
@@ -66,4 +95,8 @@ zero_bss:
 call_kernel:
 # TODO: setup SP (maybe before for DT and Signuture / Info from HV?)
     bl      kmain
+    b       .
+
+# failed to lower el to 1
+failed_el1:
     b       .
