@@ -14,8 +14,5 @@ define quitq
 end
 
 # Break on entry point, -S flag in QEMU holding the CPU before first breakpoint, continue to start
-break evt_setup
-# it's not actually mmu config - label shenanigens - currently cpu_num
-break mmu_config 
-break zero_bss
-break memzero
+break _start
+break kmain
