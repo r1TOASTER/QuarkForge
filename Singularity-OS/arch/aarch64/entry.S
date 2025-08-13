@@ -9,6 +9,35 @@
 
 _start:
     /*
+        If booting using the Raspberry Pi stubs - info ahead:
+        
+        Timer config:
+            - writing 0 to the control register - 0x4000_0000: for using crystal clock and incrementing by 1
+            - setting the pre-scaler to 1 - 0x80000000 in 0x4000_0008 (LOCAL_PRESCALER)
+            - setting the timer clock freq to 19.2Mhz (in CNTFRQ_EL0)
+            - setting the counter-timer virtual offset (CNTVOFF_EL2) to 0
+            - TIMER FREQ: (2^31) * input_freq (19.2 MHz) = 111.84810666666667 secs (for each tick?)
+        VFP config:
+            - enabling SVE, SIMD and FP in CPTR_EL3
+        EL2 config (using SCR_EL3):
+            - el2 and below non-secure
+            - IRQ, FIQ, ABT, SMC disabled to trap EL3
+            - hvc enabled
+            - els are aarch64
+            - el3 can fetch instructions from non-secure memory
+        Data and system config:
+            - enabling data coherency with other cores using SMPEN bit in CPUECTLR_EL1
+            - disabling MMU
+            - no unaligned memory access faults
+            - accessing normal memory is non-cacheable (data or instructions)
+            - no unaligned SP memory access faults (for 16 byte alignements)
+            - can use instruction execution from writeable memory
+            - data access is little endian
+        Dropping to EL2
+        Checking CPU core num (if zero - primary) jump to user provided boot) (by the GPU?)
+        Non-primary CPU cores (non zero) go to spin (with WFE instructions). after waking up - go to X
+     */
+    /*
         TODO 1:
         possible hypervisor + device tree - check xN for signture (hypervisor standard should be written)
         check if has info from it - store
