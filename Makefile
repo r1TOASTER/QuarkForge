@@ -119,7 +119,7 @@ os-run: os
 	-serial none -serial mon:stdio \
 	-display none \
 	-cpu cortex-a53 \
-	-S -gdb tcp::$(PORT) \
+	-S -gdb tcp::$(PORT)
 	
 # Running HV on Qemu for AArch64 - using the raspi3b machine guest
 # TODO: because it's HV, maybe use -deviice loader,addr=0x80000 (or where raspi actually start the boot stub), cpu-num=0?
@@ -131,7 +131,7 @@ hv-run: hv
 	-serial none -serial mon:stdio \
 	-display none \
 	-cpu cortex-a53 \
-	-S -gdb tcp::$(PORT) \
+	-S -gdb tcp::$(PORT)
 
 # Clean the entire build #
 .PHONY: clean
