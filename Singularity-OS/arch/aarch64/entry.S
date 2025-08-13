@@ -59,29 +59,27 @@ self_lower_to_el1:
 # TODO: remove trapping on the regs: HCR_EL2, CPTR_EL2, HSTR_EL2
 # TODO: enable access to timers on EL1
 # set EL1 ES to Aarch64
-    mrs     x0, HCR_EL2
-    mov     x1, #1
-    lsl     x1, x1, #30
-    and     x0, x0, x1
+    mov     x0, #1
+    lsl     x0, x0, #31
     msr     HCR_EL2, x0
 # set ELR to have the next label address so it would continue as el1
-    ldr     x0, =zero_bss
+    ldr     x0, =check_el
     msr     ELR_EL2, x0
 # configure SPSR with proper info
     mrs     x0, SPSR_EL2
     mov     x1, #0b0101
-    and     x0, x0, x1
+    orr     x0, x0, x1
     msr     SPSR_EL2, x0
 # drop to el1
     eret
 
 # checking if lowering to el1 succeeded
-#     check_el:
-#         mrs     x0, CurrentEL
-#         lsr     x0, x0, #2
-#         cmp     x0, #1
-#         b.EQ    zero_bss
-#         b       failed_el1
+check_el:
+    mrs     x0, CurrentEL
+    lsr     x0, x0, #2
+    cmp     x0, #1
+    b.EQ    zero_bss
+    b       failed_el1
 
 zero_bss:
 # load start and end address of bss section (from linker file variable exposing) and calc the offset for memzero
