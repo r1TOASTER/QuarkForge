@@ -2,18 +2,7 @@
 #define _PROCESS_H
 
 #include "Singularity/common/types.h"
-
-// keeping track of the current array index
-uint16_t proc32_cur_index = 0;
-uint16_t proc64_cur_index = 0;
-
-// spawn proc func (called from syscall)
-// kill proc func (can be used always with the sched / syscall)
-// index proc (get from the array using pid as index)
-// get current proc?
-// spawn child proc
-// kill child proc
-// modify proc?
+#include "Singularity/arch/aarch64/cpu.h"
 
 /*
     TODOs:
@@ -59,8 +48,11 @@ struct context64_s {
 
 // struct of a process needed information
 struct proc_s {
-    uint32_t pid;
-    uint32_t ppid;
+    uint16_t pid;
+    uint16_t ppid;
+
+    // arch size
+    enum proc_arch_e arch;
 
     // TODO: void ptr? size of writing to pages / memory layout todo
     void* start_va;
@@ -70,13 +62,36 @@ struct proc_s {
     uint16_t perms;
 
     // holding a ptr to regs based on aarch field
+    // TODO: maybe not a void*
     void* saved_regs;
     enum proc_state_e state;
-    // TODO: the page address where the saved info is stored?
-    void* owner_page;
 } proc_s;
 
-#define PROCESSES_MAX (4096) // 4096 max processes per core = 16384 total
-struct proc_s proc_list[PROCESSES_MAX] = { 0 };
+// define the processes list, with it's maximum capacity
+#define PROCESSES_MAX (4096) // 4096 max processes per core = 16384 total (4 cores)
+struct proc_s proc_list[CORE_NUM][PROCESSES_MAX] = { 0 };
+// keeping track of the current array index
+uint16_t proc_cur_index[CORE_NUM] = { 0 };
+uint16_t proc_list_size[CORE_NUM] = { 0 };
+
+// spawn proc func (called from syscall)
+struct proc_s spawn_proc(uint16_t perms, void* regs, enum proc_arch_e arch, uint8_t core);
+
+// kill proc func (can be used always with the sched / syscall)
+void kill_proc(uint16_t pid);
+
+// index proc from current core (get from the array using pid as index)
+struct proc_s get_proc(uint16_t index);
+
+// get current proc for current core
+struct proc_s get_current_proc();
+
+// spawn child proc
+struct proc_s spawn_child(uint16_t ppid, uint16_t perms, void* regs, enum proc_arch_e arch);
+
+// kill child proc
+void kill_child(uint16_t ppid, uint16_t pid);
+
+// modify proc?
 
 #endif

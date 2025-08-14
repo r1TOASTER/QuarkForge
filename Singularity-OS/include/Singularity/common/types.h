@@ -14,6 +14,8 @@ typedef signed long int64_t;
 #define FALSE (0)
 #define TRUE (!FALSE)
 
+#define NULL (0)
+
 #define BIT(x) (1 << (x))
 #define MASK(x) ((1 << (x)) - 1)
 
