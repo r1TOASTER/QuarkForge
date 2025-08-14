@@ -38,7 +38,6 @@
 .macro __m_restore_regs
 # x9-x15 can be corrupted (non saved)
     mrs     x9, SP_EL0
-
     .irp    n,0,1,2,3,4,5,6,7,8
         ldr     x\n, [x9, #8*(\n)]!
     .endr
@@ -53,5 +52,22 @@
     msr     SPSR_EL1, x10
     msr     ELR_EL1, x11
 .endm
+
+/* 
+    TODO: add dynamic SPSR and ELR configuration - for schedualing and running different process
+    eg. process1 is running, timer interrupt, process2 should be running - cant return to process1 context and address
+*/
+/*
+    TODO: change save / restore location memory dynamically with some function of getting correct thread page (or core)
+    first save to page, then save using kernel stack to process / thread struct
+    dont forget to free the memory from the temporarly storage (state page) for the next exception
+ */
+ /*
+    TODO: figure if to save / restore x9-x15 as well
+    if so, change in process.h GPR_NUM
+  */
+/*
+    TODO: change to store / load in pairs: stp and ldp
+ */
 
 #endif
