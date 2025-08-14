@@ -2,6 +2,7 @@
 #define _CPU_H
 
 #include "Singularity/common/types.h"
+#include "Singularity/arch/aarch64/msr.h"
 
 // number of cores available total
 #define CORE_NUM (4)

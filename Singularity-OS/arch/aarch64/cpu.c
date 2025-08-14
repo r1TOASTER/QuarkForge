@@ -1,9 +1,7 @@
 #include "Singularity/arch/aarch64/cpu.h"
 
 uint8_t get_current_core() {
-    uint8_t core; 
-    __asm__ ("mrs     %0, MPIDR_EL1\n"
-             "and     %0, %0, #3"
-             : "=r" (core));
-    return core;    
+    uint64_t mpidr;
+    READ_MSR(mpidr, MPIDR_EL1);
+    return (uint8_t)(mpidr & 0x3);
 }
