@@ -1,4 +1,4 @@
-#include "Singularity/common/types.h"
+#include "Singularity/mm/util.h"
 
 void memset(void* addr, uint8_t val, uint32_t count) {
     uint8_t* p = (uint8_t*)addr;

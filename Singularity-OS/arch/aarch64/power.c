@@ -1,4 +1,4 @@
-#include "Singularity/common/power.h"
+#include "Singularity/arch/aarch64/power.h"
 
 void __f_abort() {
     __f_cpu_reset();
