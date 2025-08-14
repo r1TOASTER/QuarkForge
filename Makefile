@@ -10,9 +10,9 @@ OBJCOPY = aarch64-none-elf-objcopy
 
 # Flags #
 # TODO: use -mgeneral-regs-only where not using float points / SIMD
-CC_FLAGS = -march=armv8-a+simd -mcpu=cortex-a53 -mfix-cortex-a53-843419 -ffreestanding -nostdlib -nostartfiles -nostdinc -mgeneral-regs-only
+CC_FLAGS = -march=armv8-a+simd -mcpu=cortex-a53 -mfix-cortex-a53-843419 -ffreestanding -nostdlib -mgeneral-regs-only
 CC_FLAGS += -Wall -Wextra -pedantic-errors -g
-LD_FLAGS = -T linker.ld -nostdlib -static --gc-sections
+LD_FLAGS = -nostdlib -static --gc-sections -T linker.ld -L/opt/aarch64-none-elf-toolchain/lib/gcc/aarch64-none-elf/14.3.1
 OBJCOPY_FLAGS = --strip-debug -O binary
 
 # Sources lists #
@@ -99,14 +99,14 @@ all:
 # Build HV free-standing #
 .PHONY: hv
 hv: $(HV_OBJS)
-	$(LD) $(LD_FLAGS) $(HV_OBJS) -o $(HV_ELF)
+	$(LD) $(LD_FLAGS) $(HV_OBJS) -lgcc -o $(HV_ELF)
 	$(OBJCOPY) $(OBJCOPY_FLAGS) $(HV_ELF) $(HV_TARGET)
 	@echo "\nFinished Quanta Hypervisor Build\n"
 
 # Build OS free-standing #
 .PHONY: os
 os: $(OS_OBJS)
-	$(LD) $(LD_FLAGS) $(OS_OBJS) -o $(OS_ELF)
+	$(LD) $(LD_FLAGS) $(OS_OBJS) -lgcc -o $(OS_ELF)
 	$(OBJCOPY) $(OBJCOPY_FLAGS) $(OS_ELF) $(OS_TARGET)
 	@echo "\nFinished Singularity Operating System Build\n"
 
