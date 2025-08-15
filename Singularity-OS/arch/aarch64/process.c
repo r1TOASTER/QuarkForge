@@ -42,7 +42,12 @@ void kill_proc(uint16_t pid) {}
 struct proc_s* get_proc(uint16_t index) {}
 
 // get current proc for current core
-struct proc_s* get_current_proc() {}
+struct proc_s* get_current_proc() {
+    uint8_t core = get_current_core();
+    uint16_t index = proc_cur_index[core];
+
+    return proc_list[core][index];
+}
 
 // spawn child proc
 struct proc_s* spawn_child(uint16_t ppid, uint16_t perms, void* regs, enum proc_arch_e arch) {}
