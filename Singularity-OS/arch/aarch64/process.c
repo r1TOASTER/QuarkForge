@@ -42,6 +42,7 @@ void kill_proc(uint16_t pid) {}
 struct proc_s* get_proc(uint16_t index) {}
 
 // get current proc for current core
+// TODO: scheduler needs to update current index
 struct proc_s* get_current_proc() {
     uint8_t core = get_current_core();
     uint16_t index = proc_cur_index[core];
