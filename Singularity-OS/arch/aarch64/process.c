@@ -1,36 +1,24 @@
 #include "Singularity/arch/aarch64/process.h"
 
 // spawn proc func (called from syscall)
-struct proc_s* spawn_proc(uint16_t perms, void* regs, enum proc_arch_e arch, uint8_t core) {
+struct proc_s* spawn_proc(uint16_t perms, struct regs_s regs, enum proc_arch_e arch, uint8_t core) {
 
     // before allocation - so can be returned if error
     struct proc_s* proc = NULL;
 
-    // provided core doesnt mean can run process on it
-    uint8_t c_core = core;
+    uint8_t c_core = cores_proc_available(get_current_core());
 
-    // TODO: check that proccesses lists are not full, other cores as well
-    if (NULL) {
+    if (c_core == CORE_NUM) { // index of available core can be 0-3
         // proccesses list on current core is full, try other cores
         return NULL;
     }
 
     uint16_t c_index = proc_cur_index[c_core];
 
-    // check that can be inserted in the next index (that they are not full doesnt gurentee next spot open) 
-    // not a loop trap - checked that the core availble
-    // TODO: maybe make a func that will return available index with this loop inside + a check already?
-    while (proc_list[c_core][c_index++]->state != KILLABLE) { }
-    // incremented after the check - if KILLABLE on process 0, c_index would be 1
-    c_index--;
-
-    // update the current index
-    proc_cur_index[c_core] = c_index;
+    proc = NULL; // TODO: alloc memory with size (kmalloc) 
 
     void* s_va = NULL; // TODO: alloc memory (check that returned value - didnt error on VA MM)
     void* e_va = NULL; // TODO: alloc memory with size (s_va + PAGE_SIZE?)
-
-    proc = NULL; // TODO: alloc memory with size (kmalloc) 
 
     proc->pid = c_index;
     proc->ppid = 0;
@@ -42,7 +30,7 @@ struct proc_s* spawn_proc(uint16_t perms, void* regs, enum proc_arch_e arch, uin
     proc->state = IDLE;
 
     // add the proc to the active processes list
-    proc_list[c_core][proc->pid] = proc;
+    proc_list[c_core][c_index] = proc;
 
     return proc;
 }
@@ -61,3 +49,50 @@ struct proc_s* spawn_child(uint16_t ppid, uint16_t perms, void* regs, enum proc_
 
 // kill child proc
 void kill_child(uint16_t ppid, uint16_t pid) {}
+
+/*
+    @brief - this function checks if a core can spawn another process in it
+    @return - true if can use it, false otherwise
+*/ 
+bool __f_core_proc_available(uint8_t core) {
+    uint16_t c_index = proc_cur_index[core];
+    
+    // looping over the cores list, if any proc->state is killable, can be replaced
+    while (proc_list[core][c_index]->state != KILLABLE) { 
+        c_index++;
+        // looped-back, no killables
+        if (c_index == proc_cur_index[core]) {
+            return FALSE;
+        }
+    }
+
+    // set the new current index of the list
+    proc_cur_index[core] = c_index;
+
+    return TRUE;
+}
+
+/*
+    @brief - this function internally checks using recursion if any core can spawn another process in it
+    @return - the number of a core if can use it, CORE_NUM otherwise
+*/
+uint8_t __f_cores_proc_available(uint8_t org, uint8_t next) {
+    // if looped back - no core available
+    if (next == NEXT_CORE(org)) {
+        return CORE_NUM;
+    }
+    
+    if (__f_core_proc_available(next)) {
+        return next;
+    }
+
+    return __f_cores_proc_available(org, NEXT_CORE(next));
+}
+
+/*
+    @brief - this function checks if any core can spawn another process in it
+    @return - the number of a core if can use it, CORE_NUM otherwise
+*/
+uint8_t cores_proc_available(uint8_t cur) {
+    __f_cores_proc_available(cur, NEXT_CORE(cur));
+}

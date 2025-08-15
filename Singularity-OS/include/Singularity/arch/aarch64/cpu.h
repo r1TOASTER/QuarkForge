@@ -6,6 +6,8 @@
 
 // number of cores available total
 #define CORE_NUM (4)
+// macro for getting the next core's num
+#define NEXT_CORE(x) ((x + 1) % CORE_NUM)
 
 // TODO: get core num func
 uint8_t get_current_core();

@@ -32,19 +32,12 @@ enum proc_state_e {
 // General Purpose Registers count for saved
 #define GPR_COUNT (24)
 
-// struct to save context of a process - aarch32
-struct context32_s {
-    uint32_t gprs[GPR_COUNT]; // x0-x30, without x9-x15
-    uint32_t spsr;
-    uint32_t elr;
-} context32_s;
-
-// struct to save context of a process - aarch64
-struct context64_s {
+// struct to save context of a process - using 64 bit even for 32 bit, defined by ARCH member of proc_s
+struct regs_s {
     uint64_t gprs[GPR_COUNT]; // x0-x30, without x9-x15
     uint64_t spsr;
     uint64_t elr;
-} context64_s;
+} regs_s;
 
 // struct of a process needed information
 struct proc_s {
@@ -61,9 +54,10 @@ struct proc_s {
     // TODO: make sure process permissions user? and can be hold inside 16-bit
     uint16_t perms;
 
-    // holding a ptr to regs based on aarch field
-    // TODO: maybe not a void*
-    void* saved_regs;
+    // holding a struct holding registers context - check size based on aarch field
+    struct regs_s saved_regs;
+
+    // current state of the process
     enum proc_state_e state;
 } proc_s;
 
@@ -75,7 +69,7 @@ uint16_t proc_cur_index[CORE_NUM] = { 0 };
 uint16_t proc_list_size[CORE_NUM] = { 0 };
 
 // spawn proc func (called from syscall)
-struct proc_s* spawn_proc(uint16_t perms, void* regs, enum proc_arch_e arch, uint8_t core);
+struct proc_s* spawn_proc(uint16_t perms, struct regs_s regs, enum proc_arch_e arch, uint8_t core);
 
 // kill proc func (can be used always with the sched / syscall)
 void kill_proc(uint16_t pid);
@@ -93,5 +87,10 @@ struct proc_s* spawn_child(uint16_t ppid, uint16_t perms, void* regs, enum proc_
 void kill_child(uint16_t ppid, uint16_t pid);
 
 // modify proc?
+
+// internal utillity
+bool __f_core_proc_available(uint8_t core);
+uint8_t __f_cores_proc_available(uint8_t org, uint8_t cur);
+uint8_t cores_proc_available(uint8_t cur);
 
 #endif
