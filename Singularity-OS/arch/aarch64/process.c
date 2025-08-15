@@ -73,26 +73,19 @@ bool __f_core_proc_available(uint8_t core) {
 }
 
 /*
-    @brief - this function internally checks using recursion if any core can spawn another process in it
-    @return - the number of a core if can use it, CORE_NUM otherwise
-*/
-uint8_t __f_cores_proc_available(uint8_t org, uint8_t next) {
-    // if looped back - no core available
-    if (next == NEXT_CORE(org)) {
-        return CORE_NUM;
-    }
-    
-    if (__f_core_proc_available(next)) {
-        return next;
-    }
-
-    return __f_cores_proc_available(org, NEXT_CORE(next));
-}
-
-/*
     @brief - this function checks if any core can spawn another process in it
     @return - the number of a core if can use it, CORE_NUM otherwise
 */
-uint8_t cores_proc_available(uint8_t cur) {
-    __f_cores_proc_available(cur, NEXT_CORE(cur));
+uint8_t cores_proc_available(uint8_t org) {
+    
+    for (uint8_t f = 0; f < CORE_NUM; f++) {
+        
+        if (__f_core_proc_available(org)) {
+            return org;
+        }
+
+        org = NEXT_CORE(org);
+    }
+
+    return CORE_NUM;
 }

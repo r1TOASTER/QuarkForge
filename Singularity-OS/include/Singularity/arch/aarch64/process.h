@@ -90,7 +90,6 @@ void kill_child(uint16_t ppid, uint16_t pid);
 
 // internal utillity
 bool __f_core_proc_available(uint8_t core);
-uint8_t __f_cores_proc_available(uint8_t org, uint8_t cur);
-uint8_t cores_proc_available(uint8_t cur);
+uint8_t cores_proc_available(uint8_t org);
 
 #endif
