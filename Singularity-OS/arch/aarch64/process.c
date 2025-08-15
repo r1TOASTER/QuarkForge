@@ -56,12 +56,13 @@ void kill_child(uint16_t ppid, uint16_t pid) {}
 */ 
 bool __f_core_proc_available(uint8_t core) {
     uint16_t c_index = proc_cur_index[core];
+    uint16_t org = c_index;
     
     // looping over the cores list, if any proc->state is killable, can be replaced
     while (proc_list[core][c_index]->state != KILLABLE) { 
         NEXT_PROC_INDEX(c_index);
         // looped-back, no killables
-        if (c_index == proc_cur_index[core]) {
+        if (c_index == org) {
             return FALSE;
         }
     }
