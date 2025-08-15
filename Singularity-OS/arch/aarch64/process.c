@@ -59,7 +59,7 @@ bool __f_core_proc_available(uint8_t core) {
     
     // looping over the cores list, if any proc->state is killable, can be replaced
     while (proc_list[core][c_index]->state != KILLABLE) { 
-        c_index = NEXT_INDEX(c_index);
+        NEXT_PROC_INDEX(c_index);
         // looped-back, no killables
         if (c_index == proc_cur_index[core]) {
             return FALSE;
@@ -84,7 +84,7 @@ uint8_t cores_proc_available(uint8_t org) {
             return org;
         }
 
-        org = NEXT_CORE(org);
+        NEXT_CORE(org);
     }
 
     return CORE_NUM;
