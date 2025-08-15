@@ -1,7 +1,7 @@
 #include "Singularity/arch/aarch64/process.h"
 
 // spawn proc func (called from syscall)
-struct proc_s* spawn_proc(uint16_t perms, struct regs_s regs, enum proc_arch_e arch, uint8_t core) {
+struct proc_s* spawn_proc(uint16_t perms, struct regs_s regs, enum proc_arch_e arch) {
 
     // before allocation - so can be returned if error
     struct proc_s* proc = NULL;
@@ -66,7 +66,7 @@ bool __f_core_proc_available(uint8_t core) {
     
     // looping over the cores list, if any proc->state is killable, can be replaced
     while (proc_list[core][c_index]->state != KILLABLE) { 
-        NEXT_PROC_INDEX(c_index);
+        c_index = NEXT_PROC_INDEX(c_index);
         // looped-back, no killables
         if (c_index == org) {
             return FALSE;
@@ -91,7 +91,7 @@ uint8_t cores_proc_available(uint8_t org) {
             return org;
         }
 
-        NEXT_CORE(org);
+        org = NEXT_CORE(org);
     }
 
     return CORE_NUM;

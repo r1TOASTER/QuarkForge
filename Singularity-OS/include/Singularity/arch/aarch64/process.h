@@ -68,10 +68,10 @@ struct proc_s* proc_list[CORE_NUM][PROCESSES_MAX] = { 0 };
 uint16_t proc_cur_index[CORE_NUM] = { 0 };
 uint16_t proc_list_size[CORE_NUM] = { 0 };
 
-#define NEXT_PROC_INDEX(x) ((++x) % PROCESSES_MAX)
+#define NEXT_PROC_INDEX(x) ((x + 1) % PROCESSES_MAX)
 
 // spawn proc func (called from syscall)
-struct proc_s* spawn_proc(uint16_t perms, struct regs_s regs, enum proc_arch_e arch, uint8_t core);
+struct proc_s* spawn_proc(uint16_t perms, struct regs_s regs, enum proc_arch_e arch);
 
 // kill proc func (can be used always with the sched / syscall)
 void kill_proc(uint16_t pid);
